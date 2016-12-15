@@ -14,7 +14,7 @@ public class ClientClass {
 	         Socket toServer = new Socket(my_serverHost, my_serverPort);
 	         PrintWriter out = new PrintWriter(toServer.getOutputStream(), true);
 	         // Write the message to the socket.
-	         out.println(studentNumber);
+	         out.println("GetSocieties "+studentNumber);
 	         out.close();
 	         toServer.close();
 	       } catch (SecurityException se) {
