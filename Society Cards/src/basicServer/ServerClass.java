@@ -3,56 +3,91 @@ package basicServer;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 //TODO: Handle multiple connections
 //TODO: Reduce redundancy
+//TODO: Allow user to pass in port number as argument
+//TODO: Use listOfSocieties?
+//TODO: Request society ID and name for extra security measure?
+//TODO: Change isMember so that user can check without societyID
 
 public class ServerClass {
 	// <Society ID, Name of society>
 	static Hashtable<Integer,String> adminTable = new Hashtable<Integer, String>();
-	
 	// <Student number, ArrayList of societies student is assigned to>
-	static Hashtable<Integer,ArrayList<String>> clientInformation = new Hashtable<Integer,ArrayList<String>>();
-	
+	static Hashtable<Integer,ArrayList<String>> clientInformation = new Hashtable<Integer,ArrayList<String>>();	
 	// ArrayList of legal societies
 	static ArrayList<String> listOfSocieties = new ArrayList<String>();
 	
-	public static void main(String args[]) throws Exception {
-		try {
-			ServerSocket serverSocket = new ServerSocket(101);
-			Socket socket = serverSocket.accept();
-			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-			String message = in.readLine();
-			
-			//Split message into (Action code, arg1, arg2)
-			
-			int code = 0;
-			int arg1 = 13437368;
-			String arg2 = "FilmSoc";
-			String output = null;
-			
-			switch(code){
-			case 0:
-				output = addStudentToSociety(arg1, arg2);
-				break;
-			case 1:
-				output = removeStudentFromSociety(arg1, arg2);
-				break;
-			}
-			
-			out.println(output);
-		} catch (IOException e) { e.printStackTrace(); }
+	private int backlog = 5;
+	private ServerSocket serverSocket;
+	
+	public static void main(String args[]) {
+		//Create the server
+		ServerClass server = new ServerClass();
+		server.listen();
 	}
 	
-	private static String addStudentToSociety(int clientID, String societyName) {
-		//Check if Society Name is legal
-		if(listOfSocieties.contains(societyName)) {
+	private ServerClass() {
+		try {
+			serverSocket = new ServerSocket(1234, backlog);
+			System.out.println("Server is listening on port 1234");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void listen() {
+		while(true) {
+			Socket clientSocket;
+			try {
+				clientSocket = serverSocket.accept();
+				PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+				DataInputStream in = new DataInputStream(clientSocket.getInputStream());
+				
+				int command = in.readInt();
+				int clientID = in.readInt();
+				int societyID;
+				societyID = in.readInt();
+				
+				switch(command){
+				case 1:
+					out.println(addStudentToSociety(clientID, societyID));
+					break;
+				case 2:
+					out.println(removeStudentFromSociety(clientID, societyID));
+					break;
+				case 3:
+					/*
+					 * TODO: Output list as object or strings?
+					 * 
+					 * //Maybe not the best practice to send objects over sockets but..... it works
+					 * ObjectOutputStream outputList = new ObjectOutputStream(clientSocket.getOutputStream()); 
+					 * String message;
+					 * outputList.writeObject(Object o);
+					 */	
+					break;
+				case 4:
+					out.println(isMember(clientID, societyID));
+					break;
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private static String addStudentToSociety(int clientID, int societyID) {
+		String societyName = adminTable.get(societyID);
+		//Check if Society ID is a valid ID for a Society
+		if(societyName != null) {
 			//Check if student is registered with system
 			if(clientInformation.containsKey(clientID)) {
 				//Check if student is already a member
@@ -71,12 +106,13 @@ public class ServerClass {
 				return(clientID + "was succesfully added to " + societyName);
 			}
 		}
-		else return("Failure to add  " + clientID + " to " + societyName + ": Society does not exist.");
+		else return("Failure to add  " + clientID + " to " + societyName + ": Society ID is incorrect.");
 	}
 	
-	private static String removeStudentFromSociety(int clientID, String societyName) {
-		//Check if Society Name is legal
-		if(listOfSocieties.contains(societyName)) {
+	private static String removeStudentFromSociety(int clientID, int societyID) {
+		String societyName = adminTable.get(societyID);
+		//Check if Society ID is a valid ID for a Society
+		if(societyName != null) {
 			//Check if student is registered with system
 			if(clientInformation.containsKey(clientID)) {
 				//Check if student is a member of society
@@ -85,7 +121,7 @@ public class ServerClass {
 			}
 			else return("Failure to remove  " + clientID + " from " + societyName + ". Client does not exist.");
 		}
-		else return("Failure to remove  " + clientID + " from " + societyName + ". Society does not exist.");
+		else return("Failure to remove  " + clientID + " from " + societyName + ". Society ID is incorrect.");
 	}
 	
 	private ArrayList<String> getAssignedSocieties(int clientID) {
@@ -97,9 +133,10 @@ public class ServerClass {
 		}	
 	}
 	
-	private static String isMember(int clientID, String societyName) {
-		//Check if Society Name is legal
-		if(listOfSocieties.contains(societyName)) {
+	private static String isMember(int clientID, int societyID) {
+		String societyName = adminTable.get(societyID);
+		//Check if Society ID is a valid ID for a Society
+		if(societyName != null) {
 			//Check if student is registered with system
 			if(clientInformation.containsKey(clientID)) {
 				//Check if student is a member of society
@@ -108,6 +145,6 @@ public class ServerClass {
 			}
 			else return("Failure to remove  " + clientID + " from " + societyName + ". Client does not exist.");
 		}
-		else return("Failure to remove  " + clientID + " from " + societyName + ". Society does not exist.");
+		else return("Failure to remove  " + clientID + " from " + societyName + ". Society ID is incorrect.");
 	}
 }
