@@ -32,6 +32,7 @@ public class ServerClass {
     private static final int ADD_STUDENT = 1;
     private static final int REMOVE_STUDENT = 2;
     private static final int CHECK_STUDENT_MEMBERSHIP = 3;
+    private static final int GET_SOCIETIES = 4;
     private ServerSocket serverSocket;
 
     public static void main(String args[]) {
@@ -86,7 +87,11 @@ public class ServerClass {
                         studentID = Integer.parseInt(command[2]);
                         out.println(isMember(studentID, societyID));
                         break;
-                    case 4:
+                    case GET_SOCIETIES:    
+                    	studentID = Integer.parseInt(command[2]);
+                        out.println(getSocieties(studentID));
+                        break;
+                    case 5:
                         /*
                          * TODO: Output list as object or strings?
                          *
@@ -183,4 +188,16 @@ public class ServerClass {
             } else return ("Failure to remove  " + studentID + " from " + societyName + ". Client does not exist.");
         } else return ("Failure to remove  " + studentID + " from " + societyName + ". Society ID is incorrect.");
     }
+    
+    private static String getSocieties(int studentID){
+    	//Check if student is registered with system
+        if (clientInformation.containsKey(studentID)) {
+        	ArrayList<String> societiesOfStudent = clientInformation.get(studentID);
+        	StringBuilder societyList = new StringBuilder();
+        	for (String s : societiesOfStudent)
+        		 societyList.append(s+"\n");
+        	return ("Student " + studentID + " is a member of the following societies:/n" + societyList);
+        	}
+        else return ("Failure to check  " + studentID + " from database. Client does not exist.");
+        }
 }
