@@ -25,7 +25,7 @@ public class ServerClass {
     static Hashtable<Integer, ArrayList<Integer>> adminMembers = new Hashtable<Integer, ArrayList<Integer>>();
     // <Student number, ArrayList of societies student is assigned to>
     static Hashtable<Integer, ArrayList<String>> clientInformation = new Hashtable<Integer, ArrayList<String>>();
-    static String serverHost = "127.0.0.1";
+    static String serverHost = "localhost";
     static int serverPort = 1234;
     private int backlog = 5;
     private static final int REGISTER_SOCIETY = 0;
@@ -88,8 +88,8 @@ public class ServerClass {
                         out.println(isMember(studentID, societyID));
                         break;
                     case GET_SOCIETIES:    
-                    	studentID = Integer.parseInt(command[2]);
-                        out.println(getSocieties(studentID));
+                    	studentID = Integer.parseInt(command[1]);
+                        out.println(getSocieties(studentID) + "Hello Evin");
                         break;
                     case 5:
                         /*
