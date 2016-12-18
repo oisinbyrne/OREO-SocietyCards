@@ -59,7 +59,7 @@ public class ServerClass {
 //                DataInputStream in = new DataInputStream(clientSocket.getInputStream());
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 String input = in.readLine();
-                System.out.println("Received: " + input);
+                System.out.println("Received message: " + input);
                 String[] command = input.split("/");
                 int commandID = Integer.parseInt(command[0]);
                 int studentID, societyID;
@@ -87,9 +87,9 @@ public class ServerClass {
                         studentID = Integer.parseInt(command[2]);
                         out.println(isMember(studentID, societyID));
                         break;
-                    case GET_SOCIETIES:    
-                    	studentID = Integer.parseInt(command[1]);
-                        out.println(getSocieties(studentID) + "Hello Evin");
+                    case GET_SOCIETIES:
+                        studentID = Integer.parseInt(command[1]);
+                        out.println(getSocieties(studentID));
                         break;
                     case 5:
                         /*
@@ -110,94 +110,58 @@ public class ServerClass {
 
     private static String addStudentToSociety(int studentID, int societyID) {
         String societyName = adminTable.get(societyID);
-        String output;
-        System.out.println("adding");
         //Check if Society ID is a valid ID for a Society
-        if (societyName != null) {
-            if (clientInformation.containsKey(studentID)) {
-                //Check if student is already a member
-                if (adminMembers.get(societyID).contains(studentID)) {
-                    return ("Failure to add  " + studentID + " to " + societyName + ": Client is already a member of Society.");
-                } else {
-                    adminMembers.get(societyID).add(studentID);
-                    clientInformation.get(studentID).add(societyName);
-                    return (studentID + "was successfully added to " + societyName);
-                }
+        if (clientInformation.containsKey(studentID)) {
+            //Check if student is already a member
+            if (adminMembers.get(societyID).contains(studentID)) {
+                return ("Failure to add  " + studentID + " to " + societyName + ": Client is already a member of Society.");
             } else {
-                ArrayList<String> clientSocieties = new ArrayList<String>();
-                clientSocieties.add(societyName);
-                clientInformation.put(studentID, clientSocieties);
                 adminMembers.get(societyID).add(studentID);
-                return (studentID + " was successfully added to " + societyName);
+                clientInformation.get(studentID).add(societyName);
+                return (studentID + "was successfully added to " + societyName);
             }
-            //Check if student is registered with system
-//            if (clientInformation.containsKey(studentID)) {
-//                //Check if student is already a member
-//                if (clientInformation.get(studentID).contains(societyName)) {
-//                    System.out.println("fail");
-//                    return ("Failure to add  " + studentID + " to " + societyName + ": Client is already a member of Society.");
-//                } else {
-//                    System.out.println("success");
-//                    clientInformation.get(studentID).add(societyName);
-//                    return (studentID + "was succesfully added to " + societyName);
-//                }
-//            } else {
-//                ArrayList<String> clientSocieties = new ArrayList<String>();
-//                clientSocieties.add(societyName);
-//                clientInformation.put(studentID, clientSocieties);
-//                return (studentID + "was succesfully added to " + societyName);
-//            }
-        } else return ("Failure to add  " + studentID + " to " + societyName + ": Society ID is incorrect.");
+        } else {
+            ArrayList<String> clientSocieties = new ArrayList<String>();
+            clientSocieties.add(societyName);
+            clientInformation.put(studentID, clientSocieties);
+            adminMembers.get(societyID).add(studentID);
+            return (studentID + " was successfully added to " + societyName);
+        }
     }
 
     private static String removeStudentFromSociety(int studentID, int societyID) {
         String societyName = adminTable.get(societyID);
-        //Check if Society ID is a valid ID for a Society
-        if (societyName != null) {
-            //Check if student is registered with system
-            if (clientInformation.containsKey(studentID)) {
-                //Check if student is a member of society
-                if (clientInformation.get(studentID).remove(societyName))
-                    return (studentID + "was succesfully removed from " + societyName);
-                else
-                    return ("Failure to remove  " + studentID + " from " + societyName + ". Client is not a member of Society.");
-            } else return ("Failure to remove  " + studentID + " from " + societyName + ". Client does not exist.");
-        } else return ("Failure to remove  " + studentID + " from " + societyName + ". Society ID is incorrect.");
-    }
-
-    private ArrayList<String> getAssignedSocieties(int studentID) {
         //Check if student is registered with system
-        if (clientInformation.containsKey(studentID)) return clientInformation.get(studentID);
-        else {
-            System.out.println("Failure get assigned societies for  " + studentID + ". Client does not exist.");
-            return null;
-        }
+        if (clientInformation.containsKey(studentID)) {
+            //Check if student is a member of society
+            if (clientInformation.get(studentID).remove(societyName))
+                return (studentID + "was successfully removed from " + societyName);
+            else
+                return ("Failure to remove  " + studentID + " from " + societyName + ". Client is not a member of Society.");
+        } else return ("Failure to find  " + studentID + " in database. Student is not a member of any societies.");
     }
 
-    private static String isMember(int studentID, int societyID) {
+    private static String isMember(int societyID, int studentID) {
         String societyName = adminTable.get(societyID);
         //Check if Society ID is a valid ID for a Society
-        if (societyName != null) {
-            //Check if student is registered with system
-            if (clientInformation.containsKey(studentID)) {
-                //Check if student is a member of society
-                if (clientInformation.get(studentID).contains(societyName))
-                    return ("Student " + studentID + " is a member of " + societyName);
-                else
-                    return ("Failure to remove  " + studentID + " from " + societyName + ". Client is not a member of Society.");
-            } else return ("Failure to remove  " + studentID + " from " + societyName + ". Client does not exist.");
-        } else return ("Failure to remove  " + studentID + " from " + societyName + ". Society ID is incorrect.");
-    }
-    
-    private static String getSocieties(int studentID){
-    	//Check if student is registered with system
+        //Check if student is registered with system
         if (clientInformation.containsKey(studentID)) {
-        	ArrayList<String> societiesOfStudent = clientInformation.get(studentID);
-        	StringBuilder societyList = new StringBuilder();
-        	for (String s : societiesOfStudent)
-        		 societyList.append(s+"\n");
-        	return ("Student " + studentID + " is a member of the following societies:/n" + societyList);
-        	}
-        else return ("Failure to check  " + studentID + " from database. Client does not exist.");
-        }
+            //Check if student is a member of society
+            if (adminMembers.get(societyID).contains(studentID))
+                return ("Student " + studentID + " is a member of " + societyName);
+            else
+                return ("Failure to find student " + studentID + ". Client is not a member of " + societyName + ".");
+        } else return ("Failure to check student " + studentID + ". Client does not exist.");
+    }
+
+    private static String getSocieties(int studentID) {
+        //Check if student is registered with system
+        if (clientInformation.containsKey(studentID)) {
+            ArrayList<String> societiesOfStudent = clientInformation.get(studentID);
+            String societies = "";
+            for (String s : societiesOfStudent)
+                societies += (s + "\n");
+            return ("Student " + studentID + " is a member of the following societies:/n" + societies);
+        } else return ("Failure to find  " + studentID + " in database. Student is not a member of any societies.");
+    }
 }

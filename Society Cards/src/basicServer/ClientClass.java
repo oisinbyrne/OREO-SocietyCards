@@ -11,6 +11,8 @@ import java.util.ArrayList;
 public class ClientClass {
     private String name;
     private int studentNumber;
+    static String serverHost = "localhost";
+    static int serverPort = 1234;
 
 	public ClientClass(String name, int studentNumber){
         this.name = name;
@@ -19,7 +21,7 @@ public class ClientClass {
 
 	public void sendStudentNumber(int command, String arg) {
 		try {
-            Socket toServer = new Socket(ServerClass.serverHost, 1234);
+            Socket toServer = new Socket(serverHost, serverPort);
             PrintWriter out = new PrintWriter(toServer.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(toServer.getInputStream()));
             // Write the message to the socket.
@@ -34,7 +36,7 @@ public class ClientClass {
         }
 	}
 		
-		public void checkStudentMembership(int studentID){
-	        sendStudentNumber(4, String.valueOf(studentID));
+		public void checkStudentMembership(){
+	        sendStudentNumber(4, String.valueOf(studentNumber));
 		}
 	}

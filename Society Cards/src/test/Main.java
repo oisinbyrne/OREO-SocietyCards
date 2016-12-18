@@ -1,12 +1,12 @@
 package test;
 import basicServer.AdminClass;
+import basicServer.ClientClass;
 import core.ClientInfo;
 import core.Card;
 import impl.WSSocietiesService;
 
 public class Main {
 	public static void main(String[] args) throws Exception {
-	    
         // Create the Societies Service and runs the test data
 //        WSSocietiesService societies = new WSSocietiesService();
 //        WSSocietiesService.contactServices();
@@ -17,12 +17,14 @@ public class Main {
 //			}
 //        }
 //		AdminClass LHSociety = new AdminClass("L&H Society");
-		AdminClass FoodSociety = new AdminClass("UCD Food Society");
-		FoodSociety.addStudent(14207364);
-		FoodSociety.addStudent(15437649);
-		FoodSociety.addStudent(16495765);
-		FoodSociety.checkMembership(14207364);
-		FoodSociety.checkMembership(54648787);
+//		AdminClass FoodSociety = new AdminClass("UCD Food Society");
+//		FoodSociety.addStudent(14207364);
+//		FoodSociety.addStudent(15437649);
+//		FoodSociety.addStudent(16495765);
+//		FoodSociety.checkMembership(14207364);
+//		FoodSociety.checkMembership(54648787);
+		ClientClass student = new ClientClass("Evin", 14207364);
+		student.checkStudentMembership();
 
 	}
 
