@@ -24,8 +24,6 @@ public class AdminClass {
             PrintWriter out = new PrintWriter(toServer.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(toServer.getInputStream()));
             // Write the message to the socket.
-            String message = command+"/"+societyID+"/"+arg;
-//            System.out.println("Sent message: " + message);
             out.println(command+"/"+societyID+"/"+arg);
             System.out.println(in.readLine());
             out.close();
