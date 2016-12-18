@@ -10,6 +10,8 @@ public class AdminClass {
     static int societyCount = 0;
     private int societyID;
     private String societyName;
+    static String serverHost = "localhost";
+    static int serverPort = 1234;
 
     public AdminClass(String societyName){
         societyCount++;
@@ -20,7 +22,7 @@ public class AdminClass {
 
     private void sendMessage(int command, String arg){
         try {
-            Socket toServer = new Socket(ServerClass.serverHost, 1234);
+            Socket toServer = new Socket(serverHost, serverPort);
             PrintWriter out = new PrintWriter(toServer.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(toServer.getInputStream()));
             // Write the message to the socket.
